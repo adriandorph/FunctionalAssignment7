@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "kjW4Zk6KTzfGiVUP3V0B5rQSJmHCSQ3xM1vV2p5phe7ttfg1wOCliaxhIl5gcc/O7boc9F1+GDDUhVyj4qHLJA==",
+  "success": true,
+  "projectFilePath": "/Users/adrian/Documents/ITU/4. Semester/Funktionel Programmering/Assignments/FunctionalAssignment7/Assignment7_Template/Assignment7_Template.fsproj",
+  "expectedPackageFiles": [
+    "/Users/adrian/.nuget/packages/fparsec/1.1.1/fparsec.1.1.1.nupkg.sha512",
+    "/Users/adrian/.nuget/packages/fsharp.core/5.0.0/fsharp.core.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
