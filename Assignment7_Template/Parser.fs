@@ -1,6 +1,7 @@
 ﻿module ImpParser
 
     open Eval
+    open System
 
     (*
 
@@ -34,15 +35,15 @@
     let pdo       = pstring "do"
     let pdeclare  = pstring "declare"
 
-    let whitespaceChar = satisfy (fun x -> System.Char.IsWhiteSpace x)
-    let pletter = satisfy (fun x -> System.Char.IsLetter x)
-    let pletters1 = many pletter
-    let palphanumeric  = satisfy (fun x -> System.Char.IsLetterOrDigit x)
-    let palphanumerics = many palphanumeric
-    let pdigit = satisfy (fun x -> System.Char.IsDigit x)
+    let whitespaceChar = satisfy (fun x -> System.Char.IsWhiteSpace x) <?> "whitespace"
+    let pletter = satisfy (fun x -> System.Char.IsLetter x)  <?> "letter"
+    let pletters1 = many pletter  <?> "letter"
+    let palphanumeric  = satisfy (fun x -> System.Char.IsLetterOrDigit x)  <?> "alphanumeric"
+    let palphanumerics = many palphanumeric <?> "alphanumerics"
+    let pdigit = satisfy (fun x -> System.Char.IsDigit x) <?> "digit"
 
-    let spaces         = many (satisfy (fun x -> System.Char.IsWhiteSpace x))
-    let spaces1        = many1 (satisfy (fun x -> System.Char.IsWhiteSpace x))
+    let spaces         = many (satisfy (fun x -> System.Char.IsWhiteSpace x)) <?> "space"
+    let spaces1        = many1 (satisfy (fun x -> System.Char.IsWhiteSpace x)) <?> "space1"
 
     let (.>*>.) p1 p2 = (p1 .>> spaces) .>>. p2
     let (.>*>) p1 p2  = (p1 .>> spaces) .>> p2
@@ -61,6 +62,8 @@
     let TermParse, tref = createParserForwardedToRef<aExp>()
     let ProdParse, pref = createParserForwardedToRef<aExp>()
     let AtomParse, aref = createParserForwardedToRef<aExp>()
+    let CharacterParse, cref = createParserForwardedToRef<cExp>()
+    let BoolParse, bref = createParserForwardedToRef<bExp>()
 
     let AddParse = binop (pchar '+') ProdParse TermParse |>> Add <?> "Add"
     let SubParse = binop (pchar '-') ProdParse TermParse |>> Sub <?> "Sub"
@@ -71,37 +74,48 @@
     let DivParse = binop (pchar '/') AtomParse ProdParse |>> Div <?> "Div"
     
 
-    let VParse = pid |>> V <?> "V"
+    let VParse = pid |>> V <?> "Var"
     let NParse   = pint32 |>> N <?> "Int"
     let NegParse = (pchar '-' >>. NParse) |>> (fun x -> Mul ((N (-1)), x)) <?> "Neg"
     let ParParse = parenthesise TermParse
     let PVParse = pPointValue >*>. ParParse |>> PV <?> "PV"
 
-    let CharacterParse, cref = createParserForwardedToRef<cExp>()
-    let ParCParse = parenthesise CharacterParse
-    let CharToIntParse = pCharToInt >*>. ParCParse|>> CharToInt <?> "CharToInt"
 
     let AexpParse = TermParse 
+    let ParCParse = parenthesise CharacterParse
+    let ParBParse = parenthesise BoolParse
 
-    let CParse = pchar ''' >>. pletter .>> pchar ''' |>> C <?> "C"
-    let CVParse = ParParse |>> CV <?> "CV"
+    let CharToIntParse = pCharToInt >*>. ParCParse|>> CharToInt <?> "CharToInt"
+    let CParse = pchar ''' >>. anyChar .>> pchar ''' |>> C <?> "C"
+    let CVParse = pCharValue >*>. ParParse |>> CV <?> "CV"
     let ToUpperParse = pToUpper >*>. ParCParse |>> ToUpper <?> "ToUpper"
     let ToLowerParse = pToLower >*>. ParCParse |>> ToLower <?> "ToLower"
     let IntToCharParse = pIntToChar >*>. ParParse|>> IntToChar <?> "IntToChar"
-    
+
+    let TTParse:Parser<bExp> = pTrue .>*> ParBParse |>> (fun _ -> TT) <?> "TT"
+    let FFParse:Parser<bExp> = pFalse .>*> ParBParse |>> (fun _ -> FF) <?> "FF"
+
+    let AEqParse:Parser<bExp> = (AexpParse .>*> (pchar ',') .>*>. AexpParse) .>*> ParBParse |>> AEq <?> "AEq"
+    let ALtParse:Parser<bExp> = (AexpParse .>*> (pchar ',') .>*>. AexpParse) .>*> ParBParse |>> ALt <?> "ALt"
+    let NotParse:Parser<bExp> = ParBParse |>> Not <?> "Not"
+    let Conj:Parser<bExp> = (BoolParse .>*> (pchar ',') .>*>. BoolParse) .>*> ParBParse |>> Conj <?> "Conj"
+    let IsVowelParse:Parser<bExp> = pIsVowel >*>.ParCParse |>> IsVowel <?> "IsVowel"
+    let IsDigitParse:Parser<bExp> = pIsDigit >*>. ParCParse |>> IsDigit <?> "IsDigit"
+    let IsLetterParse:Parser<bExp> = pIsLetter >*>.ParCParse |>> IsLetter <?> "IsLetter"
+
     do tref := choice [AddParse; SubParse; ProdParse;]
     do pref := choice [MulParse; DivParse; ModParse; AtomParse]
-    do aref := choice [CharToIntParse; NegParse; PVParse; VParse; NParse; ParParse]
-    do cref := choice [CParse; ParCParse; ToUpperParse; ToLowerParse; IntToCharParse]
-
+    do aref := choice [CharToIntParse; PVParse; NegParse; VParse; NParse; ParParse]
+    do cref := choice [CVParse; IntToCharParse; ToUpperParse; ToLowerParse; CParse; ParCParse]
+    do bref := choice [ParBParse]
 
     let CexpParse = CharacterParse
 
-    let BexpParse = pstring "not implemented"
+    let BexpParse = BoolParse
 
     let stmntParse = pstring "not implemented"
 
-(* These five types will move out of this file once you start working on the project *)
+    (* These five types will move out of this file once you start working on the project *)
     type coord      = int * int
     type squareProg = Map<int, string>
     type boardProg  = {

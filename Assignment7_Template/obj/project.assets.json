@@ -132,11 +132,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/adrian/Documents/ITU/4. Semester/Funktionel Programmering/Assignments/FunctionalAssignment7/Assignment7_Template/Assignment7_Template.fsproj",
+      "projectUniqueName": "/Users/adrian/Documents/ITU/4_Semester/Funktionel Programmering/Assignments/FunctionalAssignment7/Assignment7_Template/Assignment7_Template.fsproj",
       "projectName": "Assignment7_Template",
-      "projectPath": "/Users/adrian/Documents/ITU/4. Semester/Funktionel Programmering/Assignments/FunctionalAssignment7/Assignment7_Template/Assignment7_Template.fsproj",
+      "projectPath": "/Users/adrian/Documents/ITU/4_Semester/Funktionel Programmering/Assignments/FunctionalAssignment7/Assignment7_Template/Assignment7_Template.fsproj",
       "packagesPath": "/Users/adrian/.nuget/packages/",
-      "outputPath": "/Users/adrian/Documents/ITU/4. Semester/Funktionel Programmering/Assignments/FunctionalAssignment7/Assignment7_Template/obj/",
+      "outputPath": "/Users/adrian/Documents/ITU/4_Semester/Funktionel Programmering/Assignments/FunctionalAssignment7/Assignment7_Template/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/adrian/.nuget/NuGet/NuGet.Config"
